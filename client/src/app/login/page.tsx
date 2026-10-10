@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
 import { apiClient } from "@/lib/api";
 import { AuthResponse } from "@/lib/types";
+import { CreditSeaLogo } from "@/components/CreditSeaLogo";
 import { Lock, Mail, ArrowRight, ShieldCheck } from "lucide-react";
 
 export default function LoginPage() {
@@ -42,54 +43,55 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4 bg-gradient-to-br from-slate-950 via-slate-900 to-indigo-950">
-      <div className="max-w-md w-full bg-slate-900/80 backdrop-blur-xl border border-slate-800 rounded-2xl p-8 shadow-2xl">
+    <div className="min-h-screen flex items-center justify-center p-4 bg-gradient-to-b from-sky-50 via-white to-slate-100">
+      <div className="max-w-md w-full bg-white border border-slate-200 rounded-3xl p-8 shadow-xl shadow-sky-500/5">
         <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-indigo-600/20 text-indigo-400 border border-indigo-500/30 mb-4 shadow-inner">
-            <ShieldCheck className="w-8 h-8" />
+          <div className="flex justify-center mb-3">
+            <CreditSeaLogo size={42} />
           </div>
-          <h1 className="text-2xl font-bold tracking-tight text-white">Loan Management System</h1>
-          <p className="text-sm text-slate-400 mt-2">Sign in to your portal or operations dashboard</p>
+          <p className="text-xs text-slate-500 font-medium">
+            Borrowing made easy • Lending Lifecycle Platform
+          </p>
         </div>
 
         {error && (
-          <div className="mb-6 p-4 rounded-xl bg-red-500/10 border border-red-500/30 text-red-400 text-sm flex items-center gap-3">
-            <span className="w-2 h-2 rounded-full bg-red-400"></span>
+          <div className="mb-6 p-4 rounded-2xl bg-red-50 border border-red-200 text-red-600 text-xs flex items-center gap-2.5">
+            <span className="w-2 h-2 rounded-full bg-red-500 shrink-0"></span>
             <span>{error}</span>
           </div>
         )}
 
-        <form onSubmit={handleSubmit} className="space-y-5">
+        <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block text-xs font-semibold uppercase tracking-wider text-slate-300 mb-2">
+            <label className="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1.5">
               Email Address
             </label>
             <div className="relative">
-              <Mail className="absolute left-3.5 top-3.5 w-5 h-5 text-slate-500" />
+              <Mail className="absolute left-3.5 top-3.5 w-4 h-4 text-slate-400" />
               <input
                 type="email"
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="name@company.com"
-                className="w-full bg-slate-950/60 border border-slate-800 rounded-xl py-3 pl-11 pr-4 text-sm text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition"
+                className="w-full bg-slate-50 border border-slate-200 rounded-xl py-2.5 pl-10 pr-4 text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[#0066FF] focus:bg-white transition"
               />
             </div>
           </div>
 
           <div>
-            <label className="block text-xs font-semibold uppercase tracking-wider text-slate-300 mb-2">
+            <label className="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1.5">
               Password
             </label>
             <div className="relative">
-              <Lock className="absolute left-3.5 top-3.5 w-5 h-5 text-slate-500" />
+              <Lock className="absolute left-3.5 top-3.5 w-4 h-4 text-slate-400" />
               <input
                 type="password"
                 required
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="••••••••"
-                className="w-full bg-slate-950/60 border border-slate-800 rounded-xl py-3 pl-11 pr-4 text-sm text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition"
+                className="w-full bg-slate-50 border border-slate-200 rounded-xl py-2.5 pl-10 pr-4 text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[#0066FF] focus:bg-white transition"
               />
             </div>
           </div>
@@ -97,30 +99,30 @@ export default function LoginPage() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full py-3.5 px-4 bg-indigo-600 hover:bg-indigo-500 active:bg-indigo-700 text-white font-medium rounded-xl text-sm transition flex items-center justify-center gap-2 shadow-lg shadow-indigo-600/30 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="w-full mt-2 py-3 px-4 bg-[#0066FF] hover:bg-[#0052cc] active:bg-[#003d99] text-white font-semibold rounded-xl text-sm transition flex items-center justify-center gap-2 shadow-lg shadow-blue-500/25 disabled:opacity-50"
           >
             {loading ? (
               <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
             ) : (
               <>
-                <span>Sign In</span>
+                <span>Sign In to CreditSea</span>
                 <ArrowRight className="w-4 h-4" />
               </>
             )}
           </button>
         </form>
 
-        <div className="mt-6 text-center text-sm text-slate-400">
+        <div className="mt-5 text-center text-xs text-slate-500">
           New borrower?{" "}
-          <Link href="/register" className="text-indigo-400 hover:text-indigo-300 font-medium underline-offset-4 hover:underline">
+          <Link href="/register" className="text-[#0066FF] hover:underline font-semibold">
             Create an account
           </Link>
         </div>
 
         {/* Quick evaluation credentials */}
-        <div className="mt-8 pt-6 border-t border-slate-800/80">
-          <p className="text-xs font-medium text-slate-400 mb-2 text-center uppercase tracking-wider">
-            Quick Fill Test Accounts (pwd: password123)
+        <div className="mt-8 pt-6 border-t border-slate-100">
+          <p className="text-[11px] font-bold text-slate-400 mb-2.5 text-center uppercase tracking-wider">
+            Quick Fill Demo Accounts (pwd: password123)
           </p>
           <div className="grid grid-cols-3 gap-2">
             {[
@@ -135,7 +137,7 @@ export default function LoginPage() {
                 key={role.email}
                 type="button"
                 onClick={() => fillQuickLogin(role.email)}
-                className="px-2.5 py-1.5 text-xs bg-slate-800/60 hover:bg-indigo-950 hover:border-indigo-500/50 border border-slate-700/60 rounded-lg text-slate-300 hover:text-indigo-300 transition text-center truncate"
+                className="px-2 py-1.5 text-xs bg-slate-50 hover:bg-blue-50 hover:border-blue-300 border border-slate-200 rounded-lg text-slate-700 hover:text-[#0066FF] transition text-center font-medium truncate"
               >
                 {role.label}
               </button>

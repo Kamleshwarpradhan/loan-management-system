@@ -6,8 +6,8 @@ import { AuthProvider } from "@/context/AuthContext";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "LMS - Loan Management System",
-  description: "Enterprise grade Loan Management & Lifecycle System",
+  title: "CreditSea — Loan Management & Lending Platform",
+  description: "Borrowing made easy with CreditSea. Instant personal loans and end-to-end lifecycle management.",
 };
 
 export default function RootLayout({
@@ -16,8 +16,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className="dark">
-      <body className={`${inter.className} bg-slate-950 text-slate-100 min-h-screen antialiased`}>
+    <html lang="en">
+      <body className={`${inter.className} bg-slate-50 text-slate-900 min-h-screen antialiased`}>
         <AuthProvider>{children}</AuthProvider>
       </body>
     </html>

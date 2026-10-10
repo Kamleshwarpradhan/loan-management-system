@@ -15,7 +15,6 @@ import {
   ArrowRight,
   TrendingUp,
   CreditCard,
-  ShieldCheck,
   RefreshCw,
 } from "lucide-react";
 
@@ -41,7 +40,6 @@ export default function DashboardOverviewPage() {
   const [metrics, setMetrics] = useState<MetricsData | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
 
-  // If user has a dedicated single role (not Admin), redirect directly to their module
   useEffect(() => {
     if (user) {
       if (user.role === UserRole.SALES) router.push("/dashboard/sales");
@@ -71,8 +69,8 @@ export default function DashboardOverviewPage() {
       <ProtectedRoute allowedRoles={[UserRole.ADMIN, UserRole.SALES, UserRole.SANCTION, UserRole.DISBURSEMENT, UserRole.COLLECTION]}>
         <DashboardLayoutShell>
           <div className="py-20 text-center">
-            <RefreshCw className="w-8 h-8 text-indigo-500 animate-spin mx-auto mb-2" />
-            <p className="text-xs text-slate-400">Redirecting to your role module...</p>
+            <RefreshCw className="w-8 h-8 text-[#0066FF] animate-spin mx-auto mb-2" />
+            <p className="text-xs text-slate-500 font-medium">Redirecting to your module...</p>
           </div>
         </DashboardLayoutShell>
       </ProtectedRoute>
@@ -86,75 +84,81 @@ export default function DashboardOverviewPage() {
           {/* Header */}
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
             <div>
-              <h2 className="text-2xl font-bold tracking-tight text-white">
-                Admin Executive Overview
+              <h2 className="text-2xl font-extrabold tracking-tight text-slate-900">
+                CreditSea Executive Command Center
               </h2>
-              <p className="text-xs text-slate-400 mt-1">
-                Real-time operational KPIs and full access to all 4 lifecycle modules.
+              <p className="text-xs text-slate-500 mt-1 font-medium">
+                Real-time loan origination metrics, liquidity tracking, and operational queues.
               </p>
             </div>
 
             <button
               onClick={fetchMetrics}
               disabled={loading}
-              className="flex items-center gap-2 px-3 py-2 rounded-xl text-xs font-medium text-slate-300 hover:text-white bg-slate-800 hover:bg-slate-700 transition self-start"
+              className="flex items-center gap-2 px-3 py-2 rounded-xl text-xs font-semibold text-slate-700 hover:text-slate-900 bg-white hover:bg-slate-50 border border-slate-200 transition shadow-sm"
             >
               <RefreshCw className={`w-3.5 h-3.5 ${loading ? "animate-spin" : ""}`} />
               <span>Refresh Metrics</span>
             </button>
           </div>
 
-          {/* KPI Financial Cards */}
+          {/* Financial KPI Cards */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-            <div className="p-6 rounded-2xl bg-gradient-to-br from-indigo-950/40 via-slate-900 to-slate-950 border border-indigo-500/30">
-              <div className="flex items-center justify-between mb-3">
-                <span className="text-xs font-bold uppercase tracking-wider text-slate-400">
+            <div className="p-6 rounded-2xl bg-white border border-slate-200 shadow-sm shadow-blue-500/5">
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-xs font-bold uppercase tracking-wider text-slate-500">
                   Total Disbursed Capital
                 </span>
-                <Banknote className="w-5 h-5 text-indigo-400" />
+                <div className="w-8 h-8 rounded-lg bg-blue-50 text-[#0066FF] flex items-center justify-center">
+                  <Banknote className="w-4 h-4" />
+                </div>
               </div>
-              <p className="text-2xl font-extrabold text-white font-mono">
+              <p className="text-2xl font-extrabold text-slate-900 font-mono">
                 ₹{metrics?.financials.totalDisbursedAmount.toLocaleString("en-IN") || 0}
               </p>
-              <p className="text-[11px] text-slate-500 mt-1">
-                Active & closed loan originations
+              <p className="text-[11px] text-slate-400 mt-1 font-medium">
+                Active & settled loan payouts
               </p>
             </div>
 
-            <div className="p-6 rounded-2xl bg-gradient-to-br from-emerald-950/40 via-slate-900 to-slate-950 border border-emerald-500/30">
-              <div className="flex items-center justify-between mb-3">
-                <span className="text-xs font-bold uppercase tracking-wider text-slate-400">
+            <div className="p-6 rounded-2xl bg-white border border-slate-200 shadow-sm shadow-emerald-500/5">
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-xs font-bold uppercase tracking-wider text-slate-500">
                   Total Collections Received
                 </span>
-                <TrendingUp className="w-5 h-5 text-emerald-400" />
+                <div className="w-8 h-8 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center">
+                  <TrendingUp className="w-4 h-4" />
+                </div>
               </div>
-              <p className="text-2xl font-extrabold text-emerald-400 font-mono">
+              <p className="text-2xl font-extrabold text-emerald-600 font-mono">
                 ₹{metrics?.financials.totalCollectedAmount.toLocaleString("en-IN") || 0}
               </p>
-              <p className="text-[11px] text-slate-500 mt-1">
-                Total verified repayments across loans
+              <p className="text-[11px] text-slate-400 mt-1 font-medium">
+                Verified borrower repayments
               </p>
             </div>
 
-            <div className="p-6 rounded-2xl bg-gradient-to-br from-amber-950/40 via-slate-900 to-slate-950 border border-amber-500/30">
-              <div className="flex items-center justify-between mb-3">
-                <span className="text-xs font-bold uppercase tracking-wider text-slate-400">
+            <div className="p-6 rounded-2xl bg-white border border-slate-200 shadow-sm shadow-amber-500/5">
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-xs font-bold uppercase tracking-wider text-slate-500">
                   Total Outstanding Balance
                 </span>
-                <CreditCard className="w-5 h-5 text-amber-400" />
+                <div className="w-8 h-8 rounded-lg bg-amber-50 text-amber-600 flex items-center justify-center">
+                  <CreditCard className="w-4 h-4" />
+                </div>
               </div>
-              <p className="text-2xl font-extrabold text-amber-400 font-mono">
+              <p className="text-2xl font-extrabold text-amber-600 font-mono">
                 ₹{metrics?.financials.totalOutstandingAmount.toLocaleString("en-IN") || 0}
               </p>
-              <p className="text-[11px] text-slate-500 mt-1">
+              <p className="text-[11px] text-slate-400 mt-1 font-medium">
                 Remaining principal + interest due
               </p>
             </div>
           </div>
 
-          {/* Module Nav Cards */}
+          {/* Module Launch Cards */}
           <div>
-            <h3 className="text-sm font-bold uppercase tracking-wider text-slate-300 mb-4">
+            <h3 className="text-xs font-bold uppercase tracking-wider text-slate-400 mb-4">
               Loan Lifecycle Operational Modules
             </h3>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -166,19 +170,17 @@ export default function DashboardOverviewPage() {
                   desc: "Monitor borrower registrations and drop-offs",
                   href: "/dashboard/sales",
                   icon: Users,
-                  color: "from-blue-600/20 to-blue-500/5",
-                  border: "border-blue-500/30",
+                  color: "bg-blue-50 text-[#0066FF]",
                   badge: "Sales / Admin",
                 },
                 {
                   title: "2. Sanction Queue",
                   count: metrics?.counts.applied || 0,
-                  countLabel: "Awaiting Decision",
+                  countLabel: "Awaiting Review",
                   desc: "Underwrite, inspect slips, approve or reject",
                   href: "/dashboard/sanction",
                   icon: CheckCircle,
-                  color: "from-amber-600/20 to-amber-500/5",
-                  border: "border-amber-500/30",
+                  color: "bg-amber-50 text-amber-600",
                   badge: "Sanction / Admin",
                 },
                 {
@@ -188,8 +190,7 @@ export default function DashboardOverviewPage() {
                   desc: "Release funds & log bank transaction refs",
                   href: "/dashboard/disbursement",
                   icon: Banknote,
-                  color: "from-purple-600/20 to-purple-500/5",
-                  border: "border-purple-500/30",
+                  color: "bg-purple-50 text-purple-600",
                   badge: "Disbursement / Admin",
                 },
                 {
@@ -199,8 +200,7 @@ export default function DashboardOverviewPage() {
                   desc: "Log payments, unique UTRs, auto-close",
                   href: "/dashboard/collection",
                   icon: Receipt,
-                  color: "from-emerald-600/20 to-emerald-500/5",
-                  border: "border-emerald-500/30",
+                  color: "bg-emerald-50 text-emerald-600",
                   badge: "Collection / Admin",
                 },
               ].map((card, i) => {
@@ -209,31 +209,31 @@ export default function DashboardOverviewPage() {
                   <div
                     key={i}
                     onClick={() => router.push(card.href)}
-                    className={`p-6 rounded-2xl bg-gradient-to-b ${card.color} border ${card.border} hover:scale-[1.02] cursor-pointer transition flex flex-col justify-between shadow-xl`}
+                    className="p-6 rounded-2xl bg-white border border-slate-200 hover:border-blue-300 hover:shadow-lg hover:shadow-blue-500/5 cursor-pointer transition flex flex-col justify-between"
                   >
                     <div>
                       <div className="flex items-center justify-between mb-4">
-                        <div className="w-10 h-10 rounded-xl bg-slate-800/80 border border-slate-700/60 flex items-center justify-center text-white">
+                        <div className={`w-10 h-10 rounded-xl ${card.color} flex items-center justify-center`}>
                           <Icon className="w-5 h-5" />
                         </div>
-                        <span className="text-[10px] font-bold uppercase tracking-wide px-2 py-0.5 rounded bg-slate-800 text-slate-300">
+                        <span className="text-[10px] font-bold uppercase tracking-wide px-2 py-0.5 rounded bg-slate-100 text-slate-600">
                           {card.badge}
                         </span>
                       </div>
 
-                      <h4 className="text-base font-bold text-white mb-1">{card.title}</h4>
-                      <p className="text-xs text-slate-400 mb-4">{card.desc}</p>
+                      <h4 className="text-base font-bold text-slate-800 mb-1">{card.title}</h4>
+                      <p className="text-xs text-slate-500 mb-4">{card.desc}</p>
                     </div>
 
-                    <div className="pt-4 border-t border-slate-800/60 flex items-center justify-between">
+                    <div className="pt-4 border-t border-slate-100 flex items-center justify-between">
                       <div>
-                        <span className="text-lg font-extrabold text-white font-mono">
+                        <span className="text-lg font-extrabold text-slate-900 font-mono">
                           {card.count}
                         </span>
-                        <p className="text-[10px] text-slate-500">{card.countLabel}</p>
+                        <p className="text-[10px] text-slate-400 font-medium">{card.countLabel}</p>
                       </div>
 
-                      <div className="flex items-center gap-1.5 text-xs font-semibold text-indigo-400">
+                      <div className="flex items-center gap-1.5 text-xs font-bold text-[#0066FF]">
                         <span>Open</span>
                         <ArrowRight className="w-3.5 h-3.5" />
                       </div>

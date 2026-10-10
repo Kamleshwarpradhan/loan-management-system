@@ -5,6 +5,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
 import { UserRole } from "@/lib/types";
+import { CreditSeaLogo } from "@/components/CreditSeaLogo";
 import {
   Users,
   CheckCircle,
@@ -61,37 +62,28 @@ export const DashboardLayoutShell: React.FC<{ children: React.ReactNode }> = ({
   const { user, logout } = useAuth();
   const pathname = usePathname();
 
-  // Filter modules strictly based on user's role
   const visibleNavItems = navItems.filter(
     (item) => user && item.roles.includes(user.role)
   );
 
   return (
-    <div className="min-h-screen bg-slate-950 flex flex-col md:flex-row text-slate-100">
+    <div className="min-h-screen bg-slate-50 flex flex-col md:flex-row text-slate-800">
       {/* Sidebar */}
-      <aside className="w-full md:w-64 bg-slate-900/90 border-r border-slate-800 flex flex-col">
-        {/* Brand / Logo */}
-        <div className="p-6 border-b border-slate-800 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-xl bg-indigo-600/20 text-indigo-400 border border-indigo-500/30 flex items-center justify-center font-bold">
-              LMS
-            </div>
-            <div>
-              <h2 className="text-base font-bold text-white tracking-tight">Ops Panel</h2>
-              <p className="text-xs text-slate-400">Back-office Suite</p>
-            </div>
-          </div>
+      <aside className="w-full md:w-64 bg-white border-r border-slate-200 flex flex-col shadow-sm">
+        {/* Brand */}
+        <div className="p-5 border-b border-slate-100 flex items-center justify-between">
+          <CreditSeaLogo size={32} />
         </div>
 
         {/* User Badge */}
-        <div className="px-6 py-4 border-b border-slate-800/60 bg-slate-950/40">
+        <div className="px-5 py-4 border-b border-slate-100 bg-sky-50/50">
           <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-full bg-indigo-900/50 border border-indigo-500/40 text-indigo-300 flex items-center justify-center text-xs font-semibold">
+            <div className="w-8 h-8 rounded-full bg-[#0066FF] text-white flex items-center justify-center text-xs font-bold">
               {user?.name?.slice(0, 2).toUpperCase() || "OP"}
             </div>
             <div className="overflow-hidden">
-              <p className="text-sm font-semibold text-white truncate">{user?.name}</p>
-              <span className="inline-block px-2 py-0.5 rounded text-[10px] font-bold tracking-wide uppercase bg-indigo-500/20 text-indigo-300 border border-indigo-500/30">
+              <p className="text-xs font-bold text-slate-800 truncate">{user?.name}</p>
+              <span className="inline-block px-2 py-0.5 rounded text-[10px] font-bold tracking-wide uppercase bg-blue-100 text-[#0066FF] border border-blue-200">
                 {user?.role}
               </span>
             </div>
@@ -99,13 +91,13 @@ export const DashboardLayoutShell: React.FC<{ children: React.ReactNode }> = ({
         </div>
 
         {/* Navigation Items */}
-        <nav className="p-4 flex-1 space-y-1.5 overflow-y-auto">
-          <p className="px-3 text-[10px] font-semibold text-slate-400 uppercase tracking-wider mb-2">
-            Modules Allowed for Your Role
+        <nav className="p-3 flex-1 space-y-1 overflow-y-auto">
+          <p className="px-3 text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2">
+            Operations Modules
           </p>
 
           {visibleNavItems.length === 0 ? (
-            <div className="p-4 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-300 text-xs flex items-center gap-2">
+            <div className="p-3 rounded-xl bg-amber-50 border border-amber-200 text-amber-700 text-xs flex items-center gap-2">
               <ShieldAlert className="w-4 h-4 shrink-0" />
               <span>No operational modules assigned.</span>
             </div>
@@ -117,10 +109,10 @@ export const DashboardLayoutShell: React.FC<{ children: React.ReactNode }> = ({
                 <Link
                   key={item.href}
                   href={item.href}
-                  className={`flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium transition ${
+                  className={`flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-bold transition ${
                     isActive
-                      ? "bg-indigo-600 text-white shadow-lg shadow-indigo-600/30"
-                      : "text-slate-400 hover:text-white hover:bg-slate-800/60"
+                      ? "bg-[#0066FF] text-white shadow-md shadow-blue-500/20"
+                      : "text-slate-600 hover:text-[#0066FF] hover:bg-sky-50"
                   }`}
                 >
                   <Icon className="w-4 h-4" />
@@ -132,10 +124,10 @@ export const DashboardLayoutShell: React.FC<{ children: React.ReactNode }> = ({
         </nav>
 
         {/* Logout Button */}
-        <div className="p-4 border-t border-slate-800">
+        <div className="p-3 border-t border-slate-100">
           <button
             onClick={logout}
-            className="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium text-red-400 hover:bg-red-500/10 hover:text-red-300 border border-transparent hover:border-red-500/20 transition"
+            className="w-full flex items-center gap-3 px-3.5 py-2 rounded-xl text-xs font-semibold text-red-600 hover:bg-red-50 transition"
           >
             <LogOut className="w-4 h-4" />
             <span>Sign Out</span>
@@ -145,16 +137,20 @@ export const DashboardLayoutShell: React.FC<{ children: React.ReactNode }> = ({
 
       {/* Main Content Area */}
       <main className="flex-1 flex flex-col min-w-0 overflow-y-auto">
-        <header className="h-16 border-b border-slate-800 px-8 flex items-center justify-between bg-slate-900/40 backdrop-blur-sm">
-          <h1 className="text-lg font-semibold text-white">Operations Management Portal</h1>
-          <div className="flex items-center gap-4 text-xs text-slate-400">
-            <span>Role: <strong className="text-indigo-400">{user?.role}</strong></span>
+        <header className="h-16 border-b border-slate-200 px-8 flex items-center justify-between bg-white/80 backdrop-blur-md sticky top-0 z-40">
+          <div className="flex items-center gap-2">
+            <span className="text-xs font-bold uppercase tracking-wider text-slate-400">
+              Operations Portal
+            </span>
+          </div>
+          <div className="flex items-center gap-3 text-xs text-slate-500 font-medium">
+            <span>Role: <strong className="text-[#0066FF]">{user?.role}</strong></span>
             <span>•</span>
             <span>{user?.email}</span>
           </div>
         </header>
 
-        <div className="p-8 flex-1">{children}</div>
+        <div className="p-6 md:p-8 flex-1">{children}</div>
       </main>
     </div>
   );

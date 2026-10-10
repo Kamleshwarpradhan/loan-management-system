@@ -12,8 +12,8 @@ import {
   LoanStatus,
 } from "@/lib/types";
 import { apiClient } from "@/lib/api";
+import { CreditSeaLogo } from "@/components/CreditSeaLogo";
 import {
-  ShieldCheck,
   LogOut,
   AlertTriangle,
   CheckCircle2,
@@ -26,13 +26,12 @@ import {
   Calendar,
   Briefcase,
   IndianRupee,
-  Clock,
   Sparkles,
   Sliders,
-  CheckCircle,
   FileText,
-  BadgeAlert,
-  ChevronRight,
+  Smartphone,
+  ShieldCheck,
+  Clock,
 } from "lucide-react";
 
 export default function BorrowerPortalPage() {
@@ -61,26 +60,21 @@ export default function BorrowerPortalPage() {
   const [uploadError, setUploadError] = useState<string | null>(null);
   const [uploadSuccessMsg, setUploadSuccessMsg] = useState<string | null>(null);
 
-  // Step 4: Loan Calculator state
-  // Loan Amount: ₹50,000 to ₹5,00,000
+  // Step 4: Loan Calculator state (Sliders)
   const [loanAmount, setLoanAmount] = useState<number>(100000);
-  // Tenure: 30 to 365 days
   const [tenureDays, setTenureDays] = useState<number>(180);
   const [applyingLoan, setApplyingLoan] = useState<boolean>(false);
   const [loanApplyError, setLoanApplyError] = useState<string | null>(null);
   const [loanApplySuccess, setLoanApplySuccess] = useState<string | null>(null);
   const [showConfirmModal, setShowConfirmModal] = useState<boolean>(false);
 
-  // Simple Interest calculation:
-  // SI = (P * R * T) / (365 * 100), with R = 12%
+  // Simple Interest: SI = (P * 12 * T) / 36,500
   const interestRate = 12;
   const exactSI = (loanAmount * interestRate * tenureDays) / (365 * 100);
   const simpleInterest = Math.round(exactSI * 100) / 100;
   const totalRepayment = Math.round((loanAmount + simpleInterest) * 100) / 100;
-  const dailyInterest = Math.round((simpleInterest / tenureDays) * 100) / 100;
 
   // Active step calculation
-  // 1: Auth, 2: Profile/BRE, 3: Salary slip, 4: Loan Config & Apply, 5: Applied view
   const hasAppliedLoan = loans.length > 0;
   let currentStep = 2;
   if (hasAppliedLoan) {
@@ -91,10 +85,8 @@ export default function BorrowerPortalPage() {
     currentStep = 3;
   }
 
-  // Fetch borrower profile and loans
   const loadData = async () => {
     setLoading(true);
-
     const [profileRes, loansRes] = await Promise.all([
       apiClient<IBorrowerProfile>("/borrower/profile"),
       apiClient<{ loans: ILoan[] }>("/loans/my-loans"),
@@ -159,7 +151,7 @@ export default function BorrowerPortalPage() {
       setProfile(res.data.profile);
       if (res.data.breResult.passed) {
         setProfileSuccessMsg(
-          "Eligibility check passed! Your profile meets all lending criteria."
+          "Eligibility check passed! Your profile meets CreditSea lending criteria."
         );
         setBreFailures([]);
       } else {
@@ -174,7 +166,7 @@ export default function BorrowerPortalPage() {
     }
   };
 
-  // Quick fill shortcuts for testing
+  // Quick fill shortcuts
   const fillSamplePass = () => {
     setFullName("Vikram Mehta");
     setPan("ABCDE1234F");
@@ -283,94 +275,110 @@ export default function BorrowerPortalPage() {
 
   return (
     <ProtectedRoute allowedRoles={[UserRole.BORROWER]}>
-      <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col">
-        {/* Top Header */}
-        <header className="h-16 border-b border-slate-800 px-6 flex items-center justify-between bg-slate-900/60 backdrop-blur-md sticky top-0 z-50">
-          <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-xl bg-indigo-600/20 text-indigo-400 border border-indigo-500/30 flex items-center justify-center font-bold">
-              LMS
-            </div>
-            <div>
-              <h1 className="text-sm font-bold text-white tracking-tight">
-                Borrower Application Portal
-              </h1>
-              <p className="text-[10px] text-slate-400">
-                User: <span className="text-indigo-400">{user?.name}</span> ({user?.email})
-              </p>
-            </div>
+      <div className="min-h-screen bg-slate-50 text-slate-800 flex flex-col">
+        {/* Top Header - CreditSea Style Navbar */}
+        <header className="h-18 border-b border-slate-200 px-6 md:px-12 flex items-center justify-between bg-white sticky top-0 z-50 shadow-xs">
+          <div className="flex items-center gap-8">
+            <CreditSeaLogo size={36} />
+
+            <nav className="hidden md:flex items-center gap-6 text-xs font-semibold text-slate-600">
+              <span className="text-[#0066FF] border-b-2 border-[#0066FF] py-5">Apply Loan</span>
+              <span className="hover:text-[#0066FF] cursor-pointer">Loan Products</span>
+              <span className="hover:text-[#0066FF] cursor-pointer">Calculators</span>
+              <span className="hover:text-[#0066FF] cursor-pointer">Repay Loan</span>
+            </nav>
           </div>
 
           <div className="flex items-center gap-4">
+            <div className="text-right hidden sm:block">
+              <p className="text-xs font-bold text-slate-800">{user?.name}</p>
+              <p className="text-[11px] text-slate-500">{user?.phone || user?.email}</p>
+            </div>
             <button
               onClick={logout}
-              className="flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium text-slate-300 hover:text-white bg-slate-800 hover:bg-slate-700 transition"
+              className="flex items-center gap-2 px-3 py-1.5 rounded-xl text-xs font-semibold text-slate-700 hover:text-red-600 bg-slate-100 hover:bg-red-50 transition"
             >
-              <LogOut className="w-3.5 h-3.5 text-red-400" />
+              <LogOut className="w-3.5 h-3.5" />
               <span>Sign Out</span>
             </button>
           </div>
         </header>
 
-        {/* Stepper Navigation */}
-        <div className="bg-slate-900/40 border-b border-slate-800/80 py-4 px-6">
-          <div className="max-w-4xl mx-auto flex items-center justify-between">
-            {[
-              { num: 1, title: "Sign In", desc: "Completed", done: true, active: false },
-              {
-                num: 2,
-                title: "Personal & BRE",
-                desc: "Eligibility Verification",
-                done: profile?.breStatus === BREStatus.PASSED,
-                active: currentStep === 2,
-              },
-              {
-                num: 3,
-                title: "Salary Slip",
-                desc: "PDF/Image Upload",
-                done: !!profile?.salarySlipUrl,
-                active: currentStep === 3,
-              },
-              {
-                num: 4,
-                title: "Loan Config",
-                desc: "Calculate & Apply",
-                done: hasAppliedLoan,
-                active: currentStep === 4,
-              },
-            ].map((step, idx) => (
-              <div key={idx} className="flex items-center gap-3 flex-1 last:flex-none">
-                <div className="flex items-center gap-2.5">
-                  <div
-                    className={`w-8 h-8 rounded-xl flex items-center justify-center text-xs font-bold transition ${
-                      step.done
-                        ? "bg-emerald-600 text-white"
-                        : step.active
-                        ? "bg-indigo-600 text-white ring-4 ring-indigo-500/20"
-                        : "bg-slate-800 text-slate-500"
-                    }`}
-                  >
-                    {step.done ? <CheckCircle2 className="w-4 h-4" /> : step.num}
-                  </div>
-                  <div className="hidden md:block">
-                    <p
-                      className={`text-xs font-bold ${
-                        step.active
-                          ? "text-indigo-400"
-                          : step.done
-                          ? "text-slate-200"
-                          : "text-slate-500"
+        {/* Hero Banner with CreditSea Theme */}
+        <div className="bg-gradient-to-b from-sky-50/80 via-white to-slate-50 border-b border-slate-200/80 pt-8 pb-6 px-6">
+          <div className="max-w-4xl mx-auto text-center space-y-2">
+            <p className="text-xs font-bold text-[#0066FF] uppercase tracking-wider">
+              Borrowing made easy with CreditSea
+            </p>
+            <h1 className="text-2xl md:text-3xl font-extrabold text-slate-900 tracking-tight">
+              Get Personal Loans up to ₹5 Lakhs
+            </h1>
+            <p className="text-xs text-slate-500 max-w-lg mx-auto font-medium">
+              Instant digital loan approval • Low 12% p.a. fixed interest • Transparent fee structure
+            </p>
+          </div>
+
+          {/* Stepper Navigation */}
+          <div className="max-w-4xl mx-auto mt-8 pt-6 border-t border-slate-200/60">
+            <div className="flex items-center justify-between">
+              {[
+                { num: 1, title: "Register", desc: "Completed", done: true, active: false },
+                {
+                  num: 2,
+                  title: "Personal & BRE",
+                  desc: "Eligibility Verification",
+                  done: profile?.breStatus === BREStatus.PASSED,
+                  active: currentStep === 2,
+                },
+                {
+                  num: 3,
+                  title: "Salary Slip",
+                  desc: "Document Upload",
+                  done: !!profile?.salarySlipUrl,
+                  active: currentStep === 3,
+                },
+                {
+                  num: 4,
+                  title: "Disbursal Config",
+                  desc: "Calculate & Apply",
+                  done: hasAppliedLoan,
+                  active: currentStep === 4,
+                },
+              ].map((step, idx) => (
+                <div key={idx} className="flex items-center gap-3 flex-1 last:flex-none">
+                  <div className="flex items-center gap-2.5">
+                    <div
+                      className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold transition shadow-xs ${
+                        step.done
+                          ? "bg-emerald-500 text-white"
+                          : step.active
+                          ? "bg-[#0066FF] text-white ring-4 ring-blue-100"
+                          : "bg-slate-200 text-slate-500"
                       }`}
                     >
-                      {step.title}
-                    </p>
-                    <p className="text-[10px] text-slate-500">{step.desc}</p>
+                      {step.done ? <CheckCircle2 className="w-4 h-4" /> : step.num}
+                    </div>
+                    <div className="hidden md:block">
+                      <p
+                        className={`text-xs font-bold ${
+                          step.active
+                            ? "text-[#0066FF]"
+                            : step.done
+                            ? "text-slate-800"
+                            : "text-slate-400"
+                        }`}
+                      >
+                        {step.title}
+                      </p>
+                      <p className="text-[10px] text-slate-400 font-medium">{step.desc}</p>
+                    </div>
                   </div>
+                  {idx < 3 && (
+                    <div className="hidden sm:block flex-1 h-[2px] mx-4 bg-slate-200" />
+                  )}
                 </div>
-                {idx < 3 && (
-                  <div className="hidden sm:block flex-1 h-[2px] mx-4 bg-slate-800" />
-                )}
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
         </div>
 
@@ -378,24 +386,25 @@ export default function BorrowerPortalPage() {
         <main className="flex-1 max-w-4xl w-full mx-auto p-6 md:p-8 space-y-8">
           {loading ? (
             <div className="py-24 text-center">
-              <RefreshCw className="w-8 h-8 text-indigo-500 animate-spin mx-auto mb-3" />
-              <p className="text-sm text-slate-400">Loading your loan application progress...</p>
+              <RefreshCw className="w-8 h-8 text-[#0066FF] animate-spin mx-auto mb-3" />
+              <p className="text-xs text-slate-500 font-medium">Loading your loan application progress...</p>
             </div>
           ) : (
             <>
-              {/* Active / Submitted Loans Tracker */}
+              {/* Active Submitted Loans Tracker */}
               {loans.length > 0 && (
-                <div className="bg-slate-900/90 border border-indigo-500/40 rounded-2xl p-6 shadow-2xl relative overflow-hidden">
-                  <div className="absolute top-0 right-0 w-64 h-64 bg-indigo-500/10 rounded-full blur-3xl -z-10"></div>
+                <div className="bg-white border border-blue-200 rounded-3xl p-6 shadow-md shadow-blue-500/5 relative overflow-hidden">
                   <div className="flex items-center justify-between mb-4">
                     <div className="flex items-center gap-2.5">
-                      <Sparkles className="w-5 h-5 text-indigo-400" />
-                      <h2 className="text-base font-bold text-white">
-                        Your Submitted Loans
+                      <div className="w-8 h-8 rounded-xl bg-blue-50 text-[#0066FF] flex items-center justify-center">
+                        <Sparkles className="w-4 h-4" />
+                      </div>
+                      <h2 className="text-sm font-extrabold text-slate-900">
+                        Your CreditSea Loan Applications
                       </h2>
                     </div>
-                    <span className="text-xs text-slate-400">
-                      Total applications: {loans.length}
+                    <span className="text-xs font-bold text-[#0066FF] bg-blue-50 px-3 py-1 rounded-full">
+                      Total: {loans.length}
                     </span>
                   </div>
 
@@ -404,61 +413,61 @@ export default function BorrowerPortalPage() {
                       const getStatusBadge = (status: LoanStatus) => {
                         switch (status) {
                           case LoanStatus.APPLIED:
-                            return "bg-blue-500/10 text-blue-400 border-blue-500/30";
+                            return "bg-blue-50 text-[#0066FF] border-blue-200";
                           case LoanStatus.SANCTIONED:
-                            return "bg-amber-500/10 text-amber-400 border-amber-500/30";
+                            return "bg-amber-50 text-amber-700 border-amber-200";
                           case LoanStatus.DISBURSED:
-                            return "bg-purple-500/10 text-purple-400 border-purple-500/30";
+                            return "bg-purple-50 text-purple-700 border-purple-200";
                           case LoanStatus.CLOSED:
-                            return "bg-emerald-500/10 text-emerald-400 border-emerald-500/30";
+                            return "bg-emerald-50 text-emerald-700 border-emerald-200";
                           case LoanStatus.REJECTED:
-                            return "bg-red-500/10 text-red-400 border-red-500/30";
+                            return "bg-red-50 text-red-700 border-red-200";
                           default:
-                            return "bg-slate-800 text-slate-400 border-slate-700";
+                            return "bg-slate-100 text-slate-600 border-slate-200";
                         }
                       };
 
                       return (
                         <div
                           key={loan._id}
-                          className="p-4 rounded-xl bg-slate-950/70 border border-slate-800 flex flex-col md:flex-row md:items-center justify-between gap-4"
+                          className="p-4 rounded-2xl bg-slate-50/70 border border-slate-200/80 flex flex-col md:flex-row md:items-center justify-between gap-4"
                         >
                           <div>
                             <div className="flex items-center gap-3 mb-1">
-                              <span className="text-sm font-bold text-white">
+                              <span className="text-base font-extrabold text-slate-900 font-mono">
                                 ₹{loan.amount.toLocaleString("en-IN")}
                               </span>
                               <span
-                                className={`px-2.5 py-0.5 rounded-full text-[11px] font-semibold border ${getStatusBadge(
+                                className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase border ${getStatusBadge(
                                   loan.status
                                 )}`}
                               >
                                 {loan.status}
                               </span>
-                              <span className="text-xs text-slate-500">
+                              <span className="text-xs text-slate-500 font-medium">
                                 Tenure: {loan.tenureDays} days
                               </span>
                             </div>
-                            <p className="text-xs text-slate-400">
+                            <p className="text-xs text-slate-600">
                               Total Repayment:{" "}
-                              <strong className="text-slate-200">
+                              <strong className="text-slate-900">
                                 ₹{loan.totalRepayment.toLocaleString("en-IN")}
                               </strong>{" "}
                               (Interest: ₹{loan.interestAmount.toLocaleString("en-IN")} @ {loan.interestRate}% p.a.)
                             </p>
                             {loan.status === LoanStatus.DISBURSED && (
-                              <p className="text-xs text-purple-300 mt-1">
+                              <p className="text-xs text-purple-700 font-medium mt-1">
                                 Outstanding: ₹{loan.outstandingBalance.toLocaleString("en-IN")} | Paid: ₹{loan.totalPaid.toLocaleString("en-IN")}
                               </p>
                             )}
                             {loan.rejectionReason && (
-                              <p className="text-xs text-red-400 mt-1">
+                              <p className="text-xs text-red-600 font-medium mt-1">
                                 Rejection reason: {loan.rejectionReason}
                               </p>
                             )}
                           </div>
 
-                          <div className="text-xs text-slate-500">
+                          <div className="text-xs text-slate-400 font-medium">
                             Submitted: {new Date(loan.createdAt).toLocaleDateString()}
                           </div>
                         </div>
@@ -470,51 +479,50 @@ export default function BorrowerPortalPage() {
 
               {/* ================= STEP 2: PERSONAL DETAILS & BRE ================= */}
               <div
-                className={`bg-slate-900/80 border rounded-2xl p-6 md:p-8 shadow-xl transition ${
+                className={`bg-white border rounded-3xl p-6 md:p-8 shadow-sm transition ${
                   currentStep === 2
-                    ? "border-indigo-500/50 ring-1 ring-indigo-500/20"
+                    ? "border-blue-400 shadow-md shadow-blue-500/5 ring-1 ring-blue-100"
                     : profile?.breStatus === BREStatus.PASSED
-                    ? "border-emerald-500/30"
-                    : "border-slate-800 opacity-60"
+                    ? "border-emerald-200"
+                    : "border-slate-200 opacity-60"
                 }`}
               >
                 <div className="flex items-center justify-between mb-6">
                   <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-xl bg-indigo-600/20 text-indigo-400 border border-indigo-500/30 flex items-center justify-center font-bold">
+                    <div className="w-10 h-10 rounded-2xl bg-blue-50 text-[#0066FF] flex items-center justify-center font-bold text-sm">
                       2
                     </div>
                     <div>
-                      <h2 className="text-lg font-bold text-white">
-                        Personal Details & Eligibility Verification (BRE)
+                      <h2 className="text-base font-extrabold text-slate-900">
+                        Personal Details & Eligibility Check (BRE)
                       </h2>
-                      <p className="text-xs text-slate-400">
-                        Evaluated strictly on the server by our automated Business Rule Engine.
+                      <p className="text-xs text-slate-500 font-medium">
+                        Instant eligibility underwriting by CreditSea Business Rule Engine.
                       </p>
                     </div>
                   </div>
 
                   {profile?.breStatus === BREStatus.PASSED && (
-                    <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/30">
+                    <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
                       <CheckCircle2 className="w-3.5 h-3.5" />
                       <span>BRE Passed</span>
                     </span>
                   )}
                   {profile?.breStatus === BREStatus.FAILED && (
-                    <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-red-500/10 text-red-400 border border-red-500/30">
+                    <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-red-50 text-red-700 border border-red-200">
                       <AlertTriangle className="w-3.5 h-3.5" />
                       <span>BRE Rejected</span>
                     </span>
                   )}
                 </div>
 
-                {/* BRE Failure Banner */}
                 {breFailures.length > 0 && (
-                  <div className="mb-6 p-4 rounded-xl bg-red-500/10 border border-red-500/30 text-red-300 text-xs space-y-1.5">
-                    <div className="flex items-center gap-2 font-bold text-red-400">
-                      <AlertTriangle className="w-4 h-4 shrink-0" />
-                      <span>Application Blocked: Business Rules Failed</span>
+                  <div className="mb-6 p-4 rounded-2xl bg-red-50 border border-red-200 text-red-700 text-xs space-y-1">
+                    <div className="flex items-center gap-2 font-bold text-red-800">
+                      <AlertTriangle className="w-4 h-4 shrink-0 text-red-600" />
+                      <span>Eligibility Criteria Not Met</span>
                     </div>
-                    <ul className="list-disc list-inside space-y-1 pl-2 text-slate-300">
+                    <ul className="list-disc list-inside space-y-0.5 pl-2 text-slate-700 font-medium">
                       {breFailures.map((reason, i) => (
                         <li key={i}>{reason}</li>
                       ))}
@@ -522,10 +530,9 @@ export default function BorrowerPortalPage() {
                   </div>
                 )}
 
-                {/* BRE Success Banner */}
                 {profileSuccessMsg && (
-                  <div className="mb-6 p-4 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 text-xs flex items-center gap-2.5">
-                    <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+                  <div className="mb-6 p-4 rounded-2xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs flex items-center gap-2.5 font-medium">
+                    <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
                     <span>{profileSuccessMsg}</span>
                   </div>
                 )}
@@ -533,28 +540,28 @@ export default function BorrowerPortalPage() {
                 <form onSubmit={handleProfileSubmit} className="space-y-4">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
-                      <label className="block text-xs font-semibold uppercase tracking-wider text-slate-300 mb-1.5">
+                      <label className="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1.5">
                         Full Name
                       </label>
                       <div className="relative">
-                        <User className="absolute left-3.5 top-3.5 w-4 h-4 text-slate-500" />
+                        <User className="absolute left-3.5 top-3 w-4 h-4 text-slate-400" />
                         <input
                           type="text"
                           required
                           value={fullName}
                           onChange={(e) => setFullName(e.target.value)}
                           placeholder="e.g. Vikram Mehta"
-                          className="w-full bg-slate-950/60 border border-slate-800 rounded-xl py-2.5 pl-10 pr-4 text-sm text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                          className="w-full bg-slate-50 border border-slate-200 rounded-xl py-2 pl-10 pr-4 text-xs text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[#0066FF] focus:bg-white transition"
                         />
                       </div>
                     </div>
 
                     <div>
-                      <label className="block text-xs font-semibold uppercase tracking-wider text-slate-300 mb-1.5">
+                      <label className="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1.5">
                         PAN Card Number
                       </label>
                       <div className="relative">
-                        <CreditCard className="absolute left-3.5 top-3.5 w-4 h-4 text-slate-500" />
+                        <CreditCard className="absolute left-3.5 top-3 w-4 h-4 text-slate-400" />
                         <input
                           type="text"
                           required
@@ -562,57 +569,57 @@ export default function BorrowerPortalPage() {
                           value={pan}
                           onChange={(e) => setPan(e.target.value.toUpperCase())}
                           placeholder="ABCDE1234F"
-                          className="w-full bg-slate-950/60 border border-slate-800 rounded-xl py-2.5 pl-10 pr-4 text-sm text-white uppercase placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 font-mono"
+                          className="w-full bg-slate-50 border border-slate-200 rounded-xl py-2 pl-10 pr-4 text-xs text-slate-800 uppercase placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[#0066FF] focus:bg-white font-mono transition"
                         />
                       </div>
                     </div>
 
                     <div>
-                      <label className="block text-xs font-semibold uppercase tracking-wider text-slate-300 mb-1.5">
+                      <label className="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1.5">
                         Date of Birth (Age rule: 23–50)
                       </label>
                       <div className="relative">
-                        <Calendar className="absolute left-3.5 top-3.5 w-4 h-4 text-slate-500" />
+                        <Calendar className="absolute left-3.5 top-3 w-4 h-4 text-slate-400" />
                         <input
                           type="date"
                           required
                           value={dob}
                           onChange={(e) => setDob(e.target.value)}
-                          className="w-full bg-slate-950/60 border border-slate-800 rounded-xl py-2.5 pl-10 pr-4 text-sm text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                          className="w-full bg-slate-50 border border-slate-200 rounded-xl py-2 pl-10 pr-4 text-xs text-slate-800 focus:outline-none focus:ring-2 focus:ring-[#0066FF] focus:bg-white transition"
                         />
                       </div>
                     </div>
 
                     <div>
-                      <label className="block text-xs font-semibold uppercase tracking-wider text-slate-300 mb-1.5">
+                      <label className="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1.5">
                         Monthly Salary (₹25,000 min)
                       </label>
                       <div className="relative">
-                        <IndianRupee className="absolute left-3.5 top-3.5 w-4 h-4 text-slate-500" />
+                        <IndianRupee className="absolute left-3.5 top-3 w-4 h-4 text-slate-400" />
                         <input
                           type="number"
                           required
                           min={0}
                           value={salary}
                           onChange={(e) => setSalary(e.target.value)}
-                          placeholder="45000"
-                          className="w-full bg-slate-950/60 border border-slate-800 rounded-xl py-2.5 pl-10 pr-4 text-sm text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                          placeholder="50000"
+                          className="w-full bg-slate-50 border border-slate-200 rounded-xl py-2 pl-10 pr-4 text-xs text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[#0066FF] focus:bg-white transition font-mono"
                         />
                       </div>
                     </div>
 
                     <div className="md:col-span-2">
-                      <label className="block text-xs font-semibold uppercase tracking-wider text-slate-300 mb-1.5">
+                      <label className="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1.5">
                         Employment Mode
                       </label>
                       <div className="relative">
-                        <Briefcase className="absolute left-3.5 top-3.5 w-4 h-4 text-slate-500" />
+                        <Briefcase className="absolute left-3.5 top-3 w-4 h-4 text-slate-400" />
                         <select
                           value={employmentMode}
                           onChange={(e) =>
                             setEmploymentMode(e.target.value as EmploymentMode)
                           }
-                          className="w-full bg-slate-950/60 border border-slate-800 rounded-xl py-2.5 pl-10 pr-4 text-sm text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                          className="w-full bg-slate-50 border border-slate-200 rounded-xl py-2 pl-10 pr-4 text-xs text-slate-800 focus:outline-none focus:ring-2 focus:ring-[#0066FF] focus:bg-white transition"
                         >
                           <option value={EmploymentMode.SALARIED}>Salaried</option>
                           <option value={EmploymentMode.SELF_EMPLOYED}>
@@ -628,27 +635,27 @@ export default function BorrowerPortalPage() {
 
                   {/* Testing Shortcuts */}
                   <div className="pt-2 flex flex-wrap items-center gap-2">
-                    <span className="text-[11px] text-slate-500 font-medium">
-                      Testing Shortcuts:
+                    <span className="text-[11px] text-slate-400 font-semibold">
+                      Demo Shortcuts:
                     </span>
                     <button
                       type="button"
                       onClick={fillSamplePass}
-                      className="px-2.5 py-1 text-xs bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg transition"
+                      className="px-2.5 py-1 text-xs bg-slate-100 hover:bg-blue-50 text-slate-700 hover:text-[#0066FF] rounded-lg transition font-medium"
                     >
                       Fill Valid (Age 31, Sal 50k)
                     </button>
                     <button
                       type="button"
                       onClick={fillSampleFailAge}
-                      className="px-2.5 py-1 text-xs bg-slate-800 hover:bg-red-950/50 hover:text-red-300 text-slate-400 rounded-lg transition"
+                      className="px-2.5 py-1 text-xs bg-slate-100 hover:bg-red-50 text-slate-600 hover:text-red-600 rounded-lg transition font-medium"
                     >
                       Fail Age (Age 20)
                     </button>
                     <button
                       type="button"
                       onClick={fillSampleFailSalary}
-                      className="px-2.5 py-1 text-xs bg-slate-800 hover:bg-red-950/50 hover:text-red-300 text-slate-400 rounded-lg transition"
+                      className="px-2.5 py-1 text-xs bg-slate-100 hover:bg-red-50 text-slate-600 hover:text-red-600 rounded-lg transition font-medium"
                     >
                       Fail Salary (&lt; 25k)
                     </button>
@@ -658,17 +665,17 @@ export default function BorrowerPortalPage() {
                     <button
                       type="submit"
                       disabled={submittingProfile}
-                      className="px-6 py-2.5 bg-indigo-600 hover:bg-indigo-500 active:bg-indigo-700 text-white font-medium rounded-xl text-sm transition flex items-center gap-2 shadow-lg shadow-indigo-600/30 disabled:opacity-50"
+                      className="px-6 py-2.5 bg-[#0066FF] hover:bg-[#0052cc] text-white font-semibold rounded-xl text-xs transition flex items-center gap-2 shadow-md shadow-blue-500/20 disabled:opacity-50"
                     >
                       {submittingProfile ? (
                         <>
-                          <RefreshCw className="w-4 h-4 animate-spin" />
+                          <RefreshCw className="w-3.5 h-3.5 animate-spin" />
                           <span>Evaluating Eligibility...</span>
                         </>
                       ) : (
                         <>
                           <span>Run Eligibility Check (BRE)</span>
-                          <ArrowRight className="w-4 h-4" />
+                          <ArrowRight className="w-3.5 h-3.5" />
                         </>
                       )}
                     </button>
@@ -678,29 +685,29 @@ export default function BorrowerPortalPage() {
 
               {/* ================= STEP 3: UPLOAD SALARY SLIP ================= */}
               <div
-                className={`bg-slate-900/80 border rounded-2xl p-6 md:p-8 shadow-xl transition ${
+                className={`bg-white border rounded-3xl p-6 md:p-8 shadow-sm transition ${
                   currentStep === 3
-                    ? "border-indigo-500/50 ring-1 ring-indigo-500/20"
+                    ? "border-blue-400 shadow-md shadow-blue-500/5 ring-1 ring-blue-100"
                     : profile?.salarySlipUrl
-                    ? "border-emerald-500/30"
-                    : "border-slate-800 opacity-50"
+                    ? "border-emerald-200"
+                    : "border-slate-200 opacity-50"
                 }`}
               >
                 <div className="flex items-center justify-between mb-4">
                   <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-xl bg-indigo-600/20 text-indigo-400 border border-indigo-500/30 flex items-center justify-center font-bold">
+                    <div className="w-10 h-10 rounded-2xl bg-blue-50 text-[#0066FF] flex items-center justify-center font-bold text-sm">
                       3
                     </div>
                     <div>
-                      <h2 className="text-lg font-bold text-white">Upload Salary Slip</h2>
-                      <p className="text-xs text-slate-400">
+                      <h2 className="text-base font-extrabold text-slate-900">Upload Salary Slip</h2>
+                      <p className="text-xs text-slate-500 font-medium">
                         Accepted formats: PDF, JPG, PNG (Maximum file size: 5 MB)
                       </p>
                     </div>
                   </div>
 
                   {profile?.salarySlipUrl && (
-                    <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/30">
+                    <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
                       <FileCheck className="w-3.5 h-3.5" />
                       <span>Uploaded & Verified</span>
                     </span>
@@ -708,38 +715,38 @@ export default function BorrowerPortalPage() {
                 </div>
 
                 {profile?.breStatus !== BREStatus.PASSED ? (
-                  <div className="p-4 rounded-xl bg-slate-950/60 border border-slate-800 text-slate-400 text-xs flex items-center gap-2">
-                    <AlertTriangle className="w-4 h-4 text-amber-400 shrink-0" />
+                  <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200 text-slate-500 text-xs flex items-center gap-2 font-medium">
+                    <AlertTriangle className="w-4 h-4 text-amber-500 shrink-0" />
                     <span>
-                      You must complete and pass the Step 2 Eligibility Check before uploading documents.
+                      Please complete and pass the Step 2 Eligibility Check before uploading documents.
                     </span>
                   </div>
                 ) : (
                   <div>
                     {uploadError && (
-                      <div className="mb-4 p-3 rounded-xl bg-red-500/10 border border-red-500/30 text-red-400 text-xs">
+                      <div className="mb-4 p-3 rounded-2xl bg-red-50 border border-red-200 text-red-600 text-xs font-medium">
                         {uploadError}
                       </div>
                     )}
 
                     {uploadSuccessMsg && (
-                      <div className="mb-4 p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 text-xs flex items-center gap-2">
-                        <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+                      <div className="mb-4 p-3 rounded-2xl bg-emerald-50 border border-emerald-200 text-emerald-700 text-xs flex items-center gap-2 font-medium">
+                        <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
                         <span>{uploadSuccessMsg}</span>
                       </div>
                     )}
 
                     {profile?.salarySlipUrl && (
-                      <div className="mb-4 p-3 rounded-xl bg-slate-950/60 border border-slate-800 text-xs text-slate-300 flex items-center justify-between">
+                      <div className="mb-4 p-3 rounded-2xl bg-sky-50/50 border border-sky-100 text-xs text-slate-700 flex items-center justify-between font-medium">
                         <div className="flex items-center gap-2">
-                          <FileCheck className="w-4 h-4 text-emerald-400" />
-                          <span>Attached Document: {profile.salarySlipUrl}</span>
+                          <FileCheck className="w-4 h-4 text-emerald-600" />
+                          <span>Attached: {profile.salarySlipUrl}</span>
                         </div>
                         <a
                           href={`http://localhost:5000${profile.salarySlipUrl}`}
                           target="_blank"
                           rel="noreferrer"
-                          className="text-indigo-400 hover:text-indigo-300 underline font-medium"
+                          className="text-[#0066FF] hover:underline font-bold"
                         >
                           View Document
                         </a>
@@ -747,14 +754,14 @@ export default function BorrowerPortalPage() {
                     )}
 
                     <form onSubmit={handleUploadSubmit} className="space-y-4">
-                      <div className="border-2 border-dashed border-slate-800 hover:border-indigo-500/50 rounded-2xl p-6 text-center transition bg-slate-950/30">
-                        <UploadCloud className="w-10 h-10 text-indigo-400 mx-auto mb-2" />
+                      <div className="border-2 border-dashed border-slate-200 hover:border-blue-300 rounded-3xl p-6 text-center transition bg-slate-50/50">
+                        <UploadCloud className="w-10 h-10 text-[#0066FF] mx-auto mb-2" />
                         <label
                           htmlFor="salarySlipFile"
-                          className="cursor-pointer text-sm font-semibold text-indigo-400 hover:text-indigo-300"
+                          className="cursor-pointer text-xs font-bold text-[#0066FF] hover:underline"
                         >
                           <span>Click to browse</span>
-                          <span className="text-slate-400 font-normal"> or drag & drop file</span>
+                          <span className="text-slate-500 font-normal"> or drag and drop</span>
                           <input
                             id="salarySlipFile"
                             type="file"
@@ -763,11 +770,11 @@ export default function BorrowerPortalPage() {
                             className="sr-only"
                           />
                         </label>
-                        <p className="text-[11px] text-slate-500 mt-1">
+                        <p className="text-[11px] text-slate-400 font-medium mt-1">
                           PDF, JPG, PNG up to 5MB
                         </p>
                         {selectedFile && (
-                          <div className="mt-3 inline-flex items-center gap-2 px-3 py-1 rounded-lg bg-indigo-500/10 border border-indigo-500/30 text-indigo-300 text-xs">
+                          <div className="mt-3 inline-flex items-center gap-2 px-3 py-1 rounded-xl bg-blue-50 border border-blue-200 text-[#0066FF] text-xs font-semibold">
                             <FileCheck className="w-3.5 h-3.5" />
                             <span>Selected: {selectedFile.name} ({(selectedFile.size / 1024).toFixed(0)} KB)</span>
                           </div>
@@ -778,17 +785,17 @@ export default function BorrowerPortalPage() {
                         <button
                           type="submit"
                           disabled={!selectedFile || uploadingFile}
-                          className="px-6 py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white font-medium rounded-xl text-sm transition flex items-center gap-2 shadow-lg shadow-indigo-600/30 disabled:opacity-50 disabled:cursor-not-allowed"
+                          className="px-6 py-2.5 bg-[#0066FF] hover:bg-[#0052cc] text-white font-semibold rounded-xl text-xs transition flex items-center gap-2 shadow-md shadow-blue-500/20 disabled:opacity-50"
                         >
                           {uploadingFile ? (
                             <>
-                              <RefreshCw className="w-4 h-4 animate-spin" />
-                              <span>Uploading Document...</span>
+                              <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+                              <span>Uploading...</span>
                             </>
                           ) : (
                             <>
                               <span>Upload & Verify Salary Slip</span>
-                              <ArrowRight className="w-4 h-4" />
+                              <ArrowRight className="w-3.5 h-3.5" />
                             </>
                           )}
                         </button>
@@ -800,52 +807,52 @@ export default function BorrowerPortalPage() {
 
               {/* ================= STEP 4: LOAN CONFIGURATION & LIVE CALCULATOR ================= */}
               <div
-                className={`bg-slate-900/90 border rounded-2xl p-6 md:p-8 shadow-xl transition ${
+                className={`bg-white border rounded-3xl p-6 md:p-8 shadow-sm transition ${
                   currentStep === 4
-                    ? "border-indigo-500/50 ring-1 ring-indigo-500/20"
-                    : "border-slate-800 opacity-40"
+                    ? "border-blue-400 shadow-md shadow-blue-500/5 ring-1 ring-blue-100"
+                    : "border-slate-200 opacity-40"
                 }`}
               >
                 <div className="flex items-center justify-between mb-6">
                   <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-xl bg-indigo-600/20 text-indigo-400 border border-indigo-500/30 flex items-center justify-center font-bold">
+                    <div className="w-10 h-10 rounded-2xl bg-blue-50 text-[#0066FF] flex items-center justify-center font-bold text-sm">
                       4
                     </div>
                     <div>
-                      <h2 className="text-lg font-bold text-white">
+                      <h2 className="text-base font-extrabold text-slate-900">
                         Loan Configuration & Application
                       </h2>
-                      <p className="text-xs text-slate-400">
-                        Customize your loan amount and tenure. Fixed interest rate at 12% p.a.
+                      <p className="text-xs text-slate-500 font-medium">
+                        Customize your loan amount and tenure with live Simple Interest calculation.
                       </p>
                     </div>
                   </div>
 
-                  <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-indigo-500/10 text-indigo-400 border border-indigo-500/30">
+                  <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-blue-50 text-[#0066FF] border border-blue-200">
                     <Sliders className="w-3.5 h-3.5" />
-                    <span>Simple Interest (12% p.a.)</span>
+                    <span>Fixed 12% p.a.</span>
                   </span>
                 </div>
 
                 {!profile?.salarySlipUrl ? (
-                  <div className="p-4 rounded-xl bg-slate-950/60 border border-slate-800 text-slate-400 text-xs flex items-center gap-2">
-                    <AlertTriangle className="w-4 h-4 text-amber-400 shrink-0" />
+                  <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200 text-slate-500 text-xs flex items-center gap-2 font-medium">
+                    <AlertTriangle className="w-4 h-4 text-amber-500 shrink-0" />
                     <span>
-                      Locked. Please complete Step 2 (BRE) and Step 3 (Salary Slip Upload) above to unlock the loan application.
+                      Locked. Please complete Step 2 (BRE) and Step 3 (Salary Slip Upload) to unlock the loan application.
                     </span>
                   </div>
                 ) : (
-                  <div className="space-y-8">
+                  <div className="space-y-6">
                     {loanApplyError && (
-                      <div className="p-4 rounded-xl bg-red-500/10 border border-red-500/30 text-red-400 text-xs flex items-center gap-2">
+                      <div className="p-4 rounded-2xl bg-red-50 border border-red-200 text-red-600 text-xs flex items-center gap-2 font-medium">
                         <AlertTriangle className="w-4 h-4 shrink-0" />
                         <span>{loanApplyError}</span>
                       </div>
                     )}
 
                     {loanApplySuccess && (
-                      <div className="p-4 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 text-xs flex items-center gap-2">
-                        <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+                      <div className="p-4 rounded-2xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs flex items-center gap-2 font-medium">
+                        <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
                         <span>{loanApplySuccess}</span>
                       </div>
                     )}
@@ -854,12 +861,12 @@ export default function BorrowerPortalPage() {
                       {/* Left: Sliders */}
                       <div className="lg:col-span-7 space-y-6">
                         {/* Loan Amount Slider */}
-                        <div className="space-y-3 bg-slate-950/40 border border-slate-800/80 p-5 rounded-2xl">
+                        <div className="space-y-3 bg-slate-50/70 border border-slate-200 p-5 rounded-2xl">
                           <div className="flex items-center justify-between">
-                            <label className="text-xs font-bold uppercase tracking-wider text-slate-300">
+                            <label className="text-xs font-bold uppercase tracking-wider text-slate-700">
                               Loan Amount (Principal)
                             </label>
-                            <span className="text-lg font-extrabold text-indigo-400 font-mono">
+                            <span className="text-lg font-extrabold text-[#0066FF] font-mono">
                               ₹{loanAmount.toLocaleString("en-IN")}
                             </span>
                           </div>
@@ -871,24 +878,24 @@ export default function BorrowerPortalPage() {
                             step={10000}
                             value={loanAmount}
                             onChange={(e) => setLoanAmount(Number(e.target.value))}
-                            className="w-full h-2.5 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-indigo-500"
+                            className="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-[#0066FF]"
                           />
 
-                          <div className="flex items-center justify-between text-[11px] text-slate-500 font-medium">
+                          <div className="flex items-center justify-between text-[11px] text-slate-400 font-semibold">
                             <span>Min: ₹50,000</span>
                             <span>Max: ₹5,00,000</span>
                           </div>
                         </div>
 
                         {/* Tenure Slider */}
-                        <div className="space-y-3 bg-slate-950/40 border border-slate-800/80 p-5 rounded-2xl">
+                        <div className="space-y-3 bg-slate-50/70 border border-slate-200 p-5 rounded-2xl">
                           <div className="flex items-center justify-between">
-                            <label className="text-xs font-bold uppercase tracking-wider text-slate-300">
+                            <label className="text-xs font-bold uppercase tracking-wider text-slate-700">
                               Tenure in Days
                             </label>
-                            <span className="text-lg font-extrabold text-indigo-400 font-mono">
+                            <span className="text-lg font-extrabold text-[#0066FF] font-mono">
                               {tenureDays} Days{" "}
-                              <span className="text-xs font-normal text-slate-400">
+                              <span className="text-xs font-normal text-slate-500">
                                 (~{(tenureDays / 30).toFixed(1)} mo)
                               </span>
                             </span>
@@ -901,10 +908,10 @@ export default function BorrowerPortalPage() {
                             step={1}
                             value={tenureDays}
                             onChange={(e) => setTenureDays(Number(e.target.value))}
-                            className="w-full h-2.5 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-indigo-500"
+                            className="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-[#0066FF]"
                           />
 
-                          <div className="flex items-center justify-between text-[11px] text-slate-500 font-medium">
+                          <div className="flex items-center justify-between text-[11px] text-slate-400 font-semibold">
                             <span>Min: 30 days</span>
                             <span>Max: 365 days</span>
                           </div>
@@ -912,7 +919,7 @@ export default function BorrowerPortalPage() {
 
                         {/* Slider Quick Presets */}
                         <div className="flex items-center gap-2 pt-1">
-                          <span className="text-xs text-slate-500">Presets:</span>
+                          <span className="text-xs text-slate-400 font-medium">Presets:</span>
                           {[
                             { label: "₹50K / 30d", amt: 50000, ten: 30 },
                             { label: "₹1L / 180d", amt: 100000, ten: 180 },
@@ -926,7 +933,7 @@ export default function BorrowerPortalPage() {
                                 setLoanAmount(p.amt);
                                 setTenureDays(p.ten);
                               }}
-                              className="px-2.5 py-1 text-[11px] bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg transition"
+                              className="px-2.5 py-1 text-[11px] bg-slate-100 hover:bg-blue-50 hover:text-[#0066FF] text-slate-600 rounded-lg transition font-semibold"
                             >
                               {p.label}
                             </button>
@@ -934,58 +941,58 @@ export default function BorrowerPortalPage() {
                         </div>
                       </div>
 
-                      {/* Right: Live Calculation Panel */}
-                      <div className="lg:col-span-5 bg-gradient-to-br from-indigo-950/40 via-slate-900 to-slate-950 border border-indigo-500/30 rounded-2xl p-6 flex flex-col justify-between shadow-xl">
+                      {/* Right: Live Calculation Quote */}
+                      <div className="lg:col-span-5 bg-gradient-to-br from-sky-50 via-white to-blue-50/30 border border-blue-200 rounded-2xl p-6 flex flex-col justify-between shadow-sm">
                         <div>
-                          <div className="flex items-center gap-2 text-xs font-bold text-indigo-400 uppercase tracking-wider mb-4">
+                          <div className="flex items-center gap-2 text-xs font-bold text-[#0066FF] uppercase tracking-wider mb-4">
                             <Sparkles className="w-4 h-4" />
-                            <span>Live Repayment Quote</span>
+                            <span>CreditSea Live Quote</span>
                           </div>
 
-                          <div className="space-y-3.5 divide-y divide-slate-800 text-sm">
-                            <div className="flex items-center justify-between pt-1">
-                              <span className="text-slate-400">Principal Amount</span>
-                              <span className="font-semibold text-white font-mono">
+                          <div className="space-y-3.5 divide-y divide-slate-100 text-xs">
+                            <div className="flex items-center justify-between pt-1 font-medium">
+                              <span className="text-slate-500">Principal Amount</span>
+                              <span className="font-bold text-slate-900 font-mono">
                                 ₹{loanAmount.toLocaleString("en-IN")}
                               </span>
                             </div>
 
-                            <div className="flex items-center justify-between pt-3.5">
-                              <span className="text-slate-400">Interest Rate</span>
-                              <span className="font-semibold text-white">
-                                {interestRate}% p.a. (Fixed)
+                            <div className="flex items-center justify-between pt-3 font-medium">
+                              <span className="text-slate-500">Interest Rate</span>
+                              <span className="font-bold text-slate-900">
+                                {interestRate}% p.a.
                               </span>
                             </div>
 
-                            <div className="flex items-center justify-between pt-3.5">
-                              <span className="text-slate-400">Tenure</span>
-                              <span className="font-semibold text-white">
+                            <div className="flex items-center justify-between pt-3 font-medium">
+                              <span className="text-slate-500">Tenure</span>
+                              <span className="font-bold text-slate-900">
                                 {tenureDays} Days
                               </span>
                             </div>
 
-                            <div className="flex items-center justify-between pt-3.5">
+                            <div className="flex items-center justify-between pt-3">
                               <div>
-                                <span className="text-slate-400">Simple Interest (SI)</span>
-                                <p className="text-[10px] text-slate-500">
+                                <span className="text-slate-500 font-medium">Simple Interest (SI)</span>
+                                <p className="text-[10px] text-slate-400">
                                   (P × 12 × {tenureDays}) / 36,500
                                 </p>
                               </div>
-                              <span className="font-bold text-emerald-400 font-mono">
+                              <span className="font-bold text-emerald-600 font-mono">
                                 + ₹{simpleInterest.toLocaleString("en-IN", { minimumFractionDigits: 2 })}
                               </span>
                             </div>
 
                             <div className="flex items-center justify-between pt-4 pb-1">
                               <div>
-                                <span className="text-sm font-bold text-white">
+                                <span className="text-xs font-bold text-slate-900">
                                   Total Repayment
                                 </span>
                                 <p className="text-[10px] text-slate-400">
                                   Principal + Simple Interest
                                 </p>
                               </div>
-                              <span className="text-xl font-extrabold text-indigo-400 font-mono">
+                              <span className="text-lg font-extrabold text-[#0066FF] font-mono">
                                 ₹{totalRepayment.toLocaleString("en-IN", { minimumFractionDigits: 2 })}
                               </span>
                             </div>
@@ -997,17 +1004,17 @@ export default function BorrowerPortalPage() {
                             type="button"
                             disabled={applyingLoan}
                             onClick={() => setShowConfirmModal(true)}
-                            className="w-full py-3.5 px-4 bg-indigo-600 hover:bg-indigo-500 active:bg-indigo-700 text-white font-semibold rounded-xl text-sm transition flex items-center justify-center gap-2 shadow-lg shadow-indigo-600/30 disabled:opacity-50"
+                            className="w-full py-3.5 px-4 bg-[#0066FF] hover:bg-[#0052cc] text-white font-semibold rounded-xl text-xs transition flex items-center justify-center gap-2 shadow-md shadow-blue-500/25 disabled:opacity-50"
                           >
                             {applyingLoan ? (
                               <>
-                                <RefreshCw className="w-4 h-4 animate-spin" />
-                                <span>Submitting Application...</span>
+                                <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+                                <span>Submitting...</span>
                               </>
                             ) : (
                               <>
                                 <span>Apply for Loan</span>
-                                <ArrowRight className="w-4 h-4" />
+                                <ArrowRight className="w-3.5 h-3.5" />
                               </>
                             )}
                           </button>
@@ -1020,45 +1027,45 @@ export default function BorrowerPortalPage() {
 
               {/* Confirmation Modal */}
               {showConfirmModal && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm animate-in fade-in duration-200">
-                  <div className="max-w-md w-full bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-2xl">
-                    <div className="w-12 h-12 rounded-2xl bg-indigo-600/20 border border-indigo-500/30 text-indigo-400 flex items-center justify-center mb-4">
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-sm animate-in fade-in duration-200">
+                  <div className="max-w-md w-full bg-white border border-slate-200 rounded-3xl p-6 shadow-2xl">
+                    <div className="w-12 h-12 rounded-2xl bg-blue-50 text-[#0066FF] flex items-center justify-center mb-3">
                       <IndianRupee className="w-6 h-6" />
                     </div>
 
-                    <h3 className="text-lg font-bold text-white mb-2">
+                    <h3 className="text-lg font-bold text-slate-900 mb-1">
                       Confirm Loan Application
                     </h3>
-                    <p className="text-xs text-slate-400 mb-6">
-                      Please review your application parameters before final submission. This will initiate underwriting review by our Sanction team.
+                    <p className="text-xs text-slate-500 mb-5">
+                      Review your loan configuration before submission to the CreditSea underwriting team.
                     </p>
 
-                    <div className="bg-slate-950/60 border border-slate-800/80 rounded-xl p-4 space-y-2.5 text-xs mb-6">
+                    <div className="bg-slate-50 border border-slate-200 rounded-2xl p-4 space-y-2 text-xs mb-5">
                       <div className="flex justify-between">
-                        <span className="text-slate-400">Applicant:</span>
-                        <span className="font-semibold text-white">{profile?.fullName}</span>
+                        <span className="text-slate-500 font-medium">Applicant:</span>
+                        <span className="font-bold text-slate-800">{profile?.fullName}</span>
                       </div>
                       <div className="flex justify-between">
-                        <span className="text-slate-400">Loan Amount:</span>
-                        <span className="font-semibold text-white font-mono">
+                        <span className="text-slate-500 font-medium">Loan Amount:</span>
+                        <span className="font-bold text-slate-800 font-mono">
                           ₹{loanAmount.toLocaleString("en-IN")}
                         </span>
                       </div>
                       <div className="flex justify-between">
-                        <span className="text-slate-400">Tenure:</span>
-                        <span className="font-semibold text-white font-mono">
+                        <span className="text-slate-500 font-medium">Tenure:</span>
+                        <span className="font-bold text-slate-800 font-mono">
                           {tenureDays} Days
                         </span>
                       </div>
                       <div className="flex justify-between">
-                        <span className="text-slate-400">Simple Interest:</span>
-                        <span className="font-semibold text-emerald-400 font-mono">
+                        <span className="text-slate-500 font-medium">Simple Interest:</span>
+                        <span className="font-bold text-emerald-600 font-mono">
                           ₹{simpleInterest.toLocaleString("en-IN", { minimumFractionDigits: 2 })}
                         </span>
                       </div>
-                      <div className="flex justify-between pt-2 border-t border-slate-800">
-                        <span className="font-bold text-white">Total Repayment:</span>
-                        <span className="font-bold text-indigo-400 font-mono text-sm">
+                      <div className="flex justify-between pt-2 border-t border-slate-200">
+                        <span className="font-bold text-slate-900">Total Repayment:</span>
+                        <span className="font-extrabold text-[#0066FF] font-mono text-sm">
                           ₹{totalRepayment.toLocaleString("en-IN", { minimumFractionDigits: 2 })}
                         </span>
                       </div>
@@ -1068,14 +1075,14 @@ export default function BorrowerPortalPage() {
                       <button
                         type="button"
                         onClick={() => setShowConfirmModal(false)}
-                        className="flex-1 py-2.5 px-4 bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold rounded-xl transition"
+                        className="flex-1 py-2.5 px-4 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold rounded-xl transition"
                       >
                         Cancel
                       </button>
                       <button
                         type="button"
                         onClick={handleApplyLoan}
-                        className="flex-1 py-2.5 px-4 bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold rounded-xl transition shadow-lg shadow-indigo-600/30"
+                        className="flex-1 py-2.5 px-4 bg-[#0066FF] hover:bg-[#0052cc] text-white text-xs font-semibold rounded-xl transition shadow-md shadow-blue-500/20"
                       >
                         Confirm & Apply
                       </button>
