@@ -72,7 +72,7 @@ const borrowerProfileSchema = new Schema<IBorrowerProfileDocument>(
   }
 );
 
-borrowerProfileSchema.index({ userId: 1 });
+// Index for faster lookups (userId index is auto-created by unique: true)
 borrowerProfileSchema.index({ breStatus: 1 });
 
 export const BorrowerProfile = mongoose.model<IBorrowerProfileDocument>(
