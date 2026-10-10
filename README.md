@@ -1,3 +1,7 @@
+## 🌐 Live Demo
+- **Live Website**: [https://creditsea-lms.vercel.app](https://loan-management-system-swart.vercel.app/)
+- **API Health**: [https://lms-server-xxxx.onrender.com/api/health](https://loan-management-system-328a.onrender.com/api/health)
+
 # 🏦 CreditSea — Loan Management System (LMS)
 
 Enterprise-grade Loan Management System built for **CreditSea**, implementing an intuitive Borrower Application Portal and an Operations Dashboard across Sales, Sanction, Disbursement, and Collection modules with strict Role-Based Access Control (RBAC).
