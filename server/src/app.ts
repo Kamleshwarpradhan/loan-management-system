@@ -8,6 +8,7 @@ import { connectDB } from "./config/db";
 import authRoutes from "./routes/auth.routes";
 import borrowerRoutes from "./routes/borrower.routes";
 import loanRoutes from "./routes/loan.routes";
+import dashboardRoutes from "./routes/dashboard.routes";
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -27,6 +28,7 @@ app.use("/uploads", express.static(path.join(__dirname, "../uploads")));
 app.use("/api/auth", authRoutes);
 app.use("/api/borrower", borrowerRoutes);
 app.use("/api/loans", loanRoutes);
+app.use("/api/dashboard", dashboardRoutes);
 
 // Health check
 app.get("/api/health", (_req, res) => {
